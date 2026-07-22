@@ -1,0 +1,15 @@
+Routes
+
+1. Auth Routes
+    login
+    register
+2. Publilc Routes
+    blogs/news
+    blogs/news by id
+3. Private Routes
+    user dashboard
+        home
+        profile
+        subscribe
+    admin dashboard
+    author dashboard
