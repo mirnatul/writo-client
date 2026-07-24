@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
     CircleUser,
     LayoutDashboard,
@@ -23,6 +23,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { logout } from "@/service/logout"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 const navLinks = [
     { label: "Home", href: "/" },
@@ -70,6 +73,20 @@ type NavbarProps = {
 
 export function Navbar({ user }: NavbarProps) {
     const pathname = usePathname()
+
+    const router = useRouter()
+
+    // logout
+    const handleUserMenuAction = async (action: string) => {
+        // console.log(`logout`);
+
+        if (action === "logout") {
+            await logout();
+            toast.success("User logged out successfully")
+            router.push("/login")
+        }
+    }
+
 
     return (
         <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
@@ -130,67 +147,81 @@ export function Navbar({ user }: NavbarProps) {
                     </DropdownMenu>
 
                     {/* User Menu */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full"
-                            >
-                                <Avatar className="size-8">
-                                    <AvatarImage
-                                        src="/diverse-avatars.png"
-                                        alt="User avatar"
-                                    />
-                                    <AvatarFallback>
-                                        <CircleUser className="size-5" />
-                                    </AvatarFallback>
-                                </Avatar>
-                                <span className="sr-only">Open user menu</span>
-                            </Button>
-                        </DropdownMenuTrigger>
 
-                        <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="text-sm font-medium">{user.data?.profile.name || "name"}</span>
-                                    <span className="text-xs text-muted-foreground">
-                                        {user.data?.profile.email || "email"}
-                                    </span>
-                                </div>
-                            </DropdownMenuLabel>
+                    {
+                        user.success ? <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="rounded-full"
+                                >
+                                    <Avatar className="size-8">
+                                        <AvatarImage
+                                            src="/diverse-avatars.png"
+                                            alt="User avatar"
+                                        />
+                                        <AvatarFallback>
+                                            <CircleUser className="size-5" />
+                                        </AvatarFallback>
+                                    </Avatar>
+                                    <span className="sr-only">Open user menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
 
-                            <DropdownMenuSeparator />
+                            <DropdownMenuContent align="end" className="w-56">
+                                <DropdownMenuLabel>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-sm font-medium">{user.data?.profile.name || "name"}</span>
+                                        <span className="text-xs text-muted-foreground">
+                                            {user.data?.profile.email || "email"}
+                                        </span>
+                                    </div>
+                                </DropdownMenuLabel>
 
-                            <DropdownMenuGroup>
-                                {userMenuItems.map((item) => {
-                                    const Icon = item.icon
+                                <DropdownMenuSeparator />
 
-                                    return (
-                                        <DropdownMenuItem key={item.href} asChild>
-                                            <Link
-                                                href={item.href}
-                                                className="flex items-center gap-2"
-                                            >
-                                                <Icon className="size-4" />
-                                                {item.label}
-                                            </Link>
-                                        </DropdownMenuItem>
-                                    )
-                                })}
-                            </DropdownMenuGroup>
+                                <DropdownMenuGroup>
+                                    {userMenuItems.map((item) => {
+                                        const Icon = item.icon
 
-                            <DropdownMenuSeparator />
+                                        return (
+                                            <DropdownMenuItem key={item.href} asChild>
+                                                <Link
+                                                    href={item.href}
+                                                    className="flex items-center gap-2"
+                                                >
+                                                    <Icon className="size-4" />
+                                                    {item.label}
+                                                </Link>
+                                            </DropdownMenuItem>
+                                        )
+                                    })}
+                                </DropdownMenuGroup>
 
-                            <DropdownMenuItem
-                                className="text-destructive focus:text-destructive"
-                                onClick={() => console.log("Sign out clicked")}
-                            >
-                                <LogOut className="size-4" />
-                                <span>Log out</span>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                <DropdownMenuSeparator />
+
+                                {/* user dropdown */}
+                                <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onClick={async () => {
+                                        await handleUserMenuAction("logout")
+                                    }}
+                                >
+                                    <LogOut className="size-4" />
+                                    <span>Log out</span>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+
+
+
+                        </DropdownMenu>
+                            :
+                            <Link href={"/login"}>
+                                <Button variant={"secondary"}>Login</Button>
+                            </Link>
+                    }
+
                 </div>
             </nav>
         </header>
